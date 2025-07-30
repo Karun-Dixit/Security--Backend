@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import mongoSanitize from 'mongo-sanitize';
 
 // user authentication middleware
 const authUser = async (req, res, next) => {
@@ -22,8 +23,10 @@ const authUser = async (req, res, next) => {
     }
 
     try {
-        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-        req.body.userId = token_decode.id;
+        // Sanitize token before verification
+        const sanitizedToken = mongoSanitize(token);
+        const token_decode = jwt.verify(sanitizedToken, process.env.JWT_SECRET);
+        req.body.userId = mongoSanitize(token_decode.id);
         next();
     } catch (error) {
         console.log(error);

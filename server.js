@@ -6,6 +6,7 @@ import express from "express";
 import fs from "fs";
 import helmet from "helmet";
 import https from "https";
+import mongoSanitize from "mongo-sanitize";
 import "./config/cloudinary.js"; // Just import it for side effects (configuration)
 import connectDB from "./config/mongodb.js";
 import { csrfProtection, handleCsrfError, provideCsrfToken } from "./middleware/csrfProtection.js";
@@ -26,6 +27,14 @@ connectDB();
 app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
+
+// NoSQL Injection Protection - sanitize all user input
+app.use((req, res, next) => {
+  req.body = mongoSanitize(req.body);
+  req.query = mongoSanitize(req.query);
+  req.params = mongoSanitize(req.params);
+  next();
+});
 
 // CORS configuration to allow HTTPS requests
 const corsOptions = {

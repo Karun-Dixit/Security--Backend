@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import jwt from "jsonwebtoken";
+import mongoSanitize from "mongo-sanitize";
 import validator from "validator";
 import appointmentModel from "../models/appointmentModel.js";
 import auditLogModel from "../models/auditLogModel.js";
@@ -10,8 +11,9 @@ import userModel from "../models/userModel.js";
 // API for admin login
 const loginAdmin = async (req, res) => {
     try {
-
-        const { email, password } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { email, password } = sanitizedBody;
 
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
             const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -51,8 +53,9 @@ const appointmentsAdmin = async (req, res) => {
 // API for appointment cancellation
 const appointmentCancel = async (req, res) => {
     try {
-
-        const { appointmentId } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { appointmentId } = sanitizedBody;
         await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
 
         res.json({ success: true, message: 'Appointment Cancelled' })
@@ -68,8 +71,9 @@ const appointmentCancel = async (req, res) => {
 const addDoctor = async (req, res) => {
 
     try {
-
-        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { name, email, password, speciality, degree, experience, about, fees, address } = sanitizedBody;
         const imageFile = req.file
 
         // checking for all data to add doctor

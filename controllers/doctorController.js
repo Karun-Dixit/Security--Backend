@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import mongoSanitize from "mongo-sanitize";
 import appointmentModel from "../models/appointmentModel.js";
 import doctorModel from "../models/doctorModel.js";
 
@@ -7,8 +8,9 @@ import doctorModel from "../models/doctorModel.js";
 const loginDoctor = async (req, res) => {
 
     try {
-
-        const { email, password } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { email, password } = sanitizedBody;
         const user = await doctorModel.findOne({ email })
 
         if (!user) {
@@ -40,8 +42,9 @@ const loginDoctor = async (req, res) => {
 // API to get doctor appointments for doctor panel
 const appointmentsDoctor = async (req, res) => {
     try {
-
-        const { docId } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { docId } = sanitizedBody;
         const appointments = await appointmentModel.find({ docId })
 
         res.json({ success: true, appointments })
@@ -55,8 +58,9 @@ const appointmentsDoctor = async (req, res) => {
 // API to cancel appointment for doctor panel
 const appointmentCancel = async (req, res) => {
     try {
-
-        const { docId, appointmentId } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { docId, appointmentId } = sanitizedBody;
 
         const appointmentData = await appointmentModel.findById(appointmentId)
         if (appointmentData && appointmentData.docId === docId) {
@@ -76,8 +80,9 @@ const appointmentCancel = async (req, res) => {
 // API to mark appointment completed for doctor panel
 const appointmentComplete = async (req, res) => {
     try {
-
-        const { docId, appointmentId } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { docId, appointmentId } = sanitizedBody;
 
         const appointmentData = await appointmentModel.findById(appointmentId)
         if (appointmentData && appointmentData.docId === docId) {
@@ -111,8 +116,9 @@ const doctorList = async (req, res) => {
 // API to change doctor availablity for Admin and Doctor Panel
 const changeAvailablity = async (req, res) => {
     try {
-
-        const { docId } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { docId } = sanitizedBody;
 
         const docData = await doctorModel.findById(docId)
         await doctorModel.findByIdAndUpdate(docId, { available: !docData.available })
@@ -127,8 +133,9 @@ const changeAvailablity = async (req, res) => {
 // API to get doctor profile for  Doctor Panel
 const doctorProfile = async (req, res) => {
     try {
-
-        const { docId } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { docId } = sanitizedBody;
         const profileData = await doctorModel.findById(docId).select('-password')
 
         res.json({ success: true, profileData })
@@ -142,8 +149,9 @@ const doctorProfile = async (req, res) => {
 // API to update doctor profile data from  Doctor Panel
 const updateDoctorProfile = async (req, res) => {
     try {
-
-        const { docId, fees, address, available } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { docId, fees, address, available } = sanitizedBody;
 
         await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
 
@@ -158,8 +166,9 @@ const updateDoctorProfile = async (req, res) => {
 // API to get dashboard data for doctor panel
 const doctorDashboard = async (req, res) => {
     try {
-
-        const { docId } = req.body
+        // Sanitize inputs to prevent NoSQL injection
+        const sanitizedBody = mongoSanitize(req.body);
+        const { docId } = sanitizedBody;
 
         const appointments = await appointmentModel.find({ docId })
 

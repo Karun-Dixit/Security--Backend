@@ -1,8 +1,26 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const appointmentSchema = new mongoose.Schema({
-    userId: { type: String, required: true },
-    docId: { type: String, required: true },
+    userId: { 
+        type: String, 
+        required: true,
+        validate: {
+            validator: function(v) {
+                return mongoose.Types.ObjectId.isValid(v);
+            },
+            message: 'Invalid userId format'
+        }
+    },
+    docId: { 
+        type: String, 
+        required: true,
+        validate: {
+            validator: function(v) {
+                return mongoose.Types.ObjectId.isValid(v);
+            },
+            message: 'Invalid docId format'
+        }
+    },
     slotDate: { type: String, required: true },
     slotTime: { type: String, required: true },
     userData: { type: Object, required: true },

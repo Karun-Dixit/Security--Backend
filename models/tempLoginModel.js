@@ -1,7 +1,16 @@
 import mongoose from "mongoose";
 
 const tempLoginSchema = new mongoose.Schema({
-  email: { type: String, required: true },
+  email: { 
+    type: String, 
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: 'Invalid email format'
+    }
+  },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
   otp: { type: String, required: true },
   otpExpires: { type: Date, required: true },

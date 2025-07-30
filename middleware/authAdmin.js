@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import mongoSanitize from "mongo-sanitize";
 
 // admin authentication middleware
 const authAdmin = async (req, res, next) => {
@@ -12,7 +13,9 @@ const authAdmin = async (req, res, next) => {
         if (!atoken) {
             return res.json({ success: false, message: 'Not Authorized Login Again' });
         }
-        const token_decode = jwt.verify(atoken, process.env.JWT_SECRET);
+        // Sanitize token before verification
+        const sanitizedToken = mongoSanitize(atoken);
+        const token_decode = jwt.verify(sanitizedToken, process.env.JWT_SECRET);
         if (token_decode.email !== process.env.ADMIN_EMAIL) {
             return res.json({ success: false, message: 'Not Authorized Login Again' });
         }

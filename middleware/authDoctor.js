@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import mongoSanitize from 'mongo-sanitize';
 
 // doctor authentication middleware
 const authDoctor = async (req, res, next) => {
@@ -12,12 +13,14 @@ const authDoctor = async (req, res, next) => {
         return res.json({ success: false, message: 'Not Authorized Login Again' })
     }
     try {
-        const token_decode = jwt.verify(token, process.env.JWT_SECRET)
-        req.body.docId = token_decode.id
-        next()
+        // Sanitize token before verification
+        const sanitizedToken = mongoSanitize(token);
+        const token_decode = jwt.verify(sanitizedToken, process.env.JWT_SECRET);
+        req.body.docId = mongoSanitize(token_decode.id);
+        next();
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
 }
 

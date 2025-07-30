@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import mongoSanitize from "mongo-sanitize";
 import stripe from "stripe";
 import validator from "validator";
 import appointmentModel from "../models/appointmentModel.js";
@@ -21,7 +22,9 @@ const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
 // Register user (with OTP)
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    // Sanitize inputs to prevent NoSQL injection
+    const sanitizedBody = mongoSanitize(req.body);
+    const { name, email, password } = sanitizedBody;
 
     if (!name || !email || !password) {
       return res.json({ success: false, message: "Missing Details" });
@@ -148,7 +151,9 @@ const verifyCaptcha = async (token) => {
 // Login user - Step 1: Verify credentials and send OTP
 const loginUser = async (req, res) => {
   try {
-    const { email, password, captchaToken } = req.body;
+    // Sanitize inputs to prevent NoSQL injection
+    const sanitizedBody = mongoSanitize(req.body);
+    const { email, password, captchaToken } = sanitizedBody;
 
     // CAPTCHA verification
     if (!captchaToken || !(await verifyCaptcha(captchaToken))) {
@@ -334,10 +339,12 @@ const getProfile = async (req, res) => {
 
 // Update user profile
 const updateProfile = async (req, res) => {
-  console.log('updateProfile req.body:', req.body);
-  console.log('updateProfile req.file:', req.file);
+  // console.log('updateProfile req.body:', req.body); // Removed for clean production logs
+  // console.log('updateProfile req.file:', req.file); // Removed for clean production logs
   try {
-    const { userId, name, phone, address, dob, gender } = req.body;
+    // Sanitize inputs to prevent NoSQL injection
+    const sanitizedBody = mongoSanitize(req.body);
+    const { userId, name, phone, address, dob, gender } = sanitizedBody;
     const imageFile = req.file;
 
     if (!name || !phone || !dob || !gender) {
@@ -370,7 +377,9 @@ const updateProfile = async (req, res) => {
 // Book appointment
 const bookAppointment = async (req, res) => {
   try {
-    const { userId, docId, slotDate, slotTime } = req.body;
+    // Sanitize inputs to prevent NoSQL injection
+    const sanitizedBody = mongoSanitize(req.body);
+    const { userId, docId, slotDate, slotTime } = sanitizedBody;
     const docData = await doctorModel.findById(docId).select("-password");
 
     if (!docData.available) {
@@ -464,7 +473,9 @@ const listAppointment = async (req, res) => {
 // Forgot Password - Generate reset token and send email
 const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    // Sanitize inputs to prevent NoSQL injection
+    const sanitizedBody = mongoSanitize(req.body);
+    const { email } = sanitizedBody;
 
     // Validate email
     if (!email) {
@@ -680,7 +691,7 @@ const logoutUser = async (req, res) => {
 
     // Log the user ID if available (from auth middleware)
     const userId = req.body.userId || 'unknown';
-    console.log(`User ${userId} logged out successfully`);
+    // console.log(`User ${userId} logged out successfully`); // Removed for clean production logs
 
     res.json({
       success: true,
@@ -764,20 +775,20 @@ const verifyStripe = async (req, res) => {
 /* ------------------ Final Export ------------------ */
 
 export {
-  bookAppointment,
-  cancelAppointment,
-  forgotPassword,
-  getProfile,
-  listAppointment,
-  loginUser,
-  logoutUser,
-  paymentStripe,
-  registerUser,
-  resetPassword,
-  updateProfile,
-  verifyLoginOtp,
-  verifyResetToken,
-  verifyStripe,
-  verifyUserOtp
+    bookAppointment,
+    cancelAppointment,
+    forgotPassword,
+    getProfile,
+    listAppointment,
+    loginUser,
+    logoutUser,
+    paymentStripe,
+    registerUser,
+    resetPassword,
+    updateProfile,
+    verifyLoginOtp,
+    verifyResetToken,
+    verifyStripe,
+    verifyUserOtp
 };
 

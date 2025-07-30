@@ -1,8 +1,27 @@
 import mongoose from "mongoose";
 
 const doctorSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    name: { 
+        type: String, 
+        required: true,
+        validate: {
+            validator: function(v) {
+                return /^[a-zA-Z\s]+$/.test(v) && v.length <= 100;
+            },
+            message: 'Name must contain only letters and spaces'
+        }
+    },
+    email: { 
+        type: String, 
+        required: true, 
+        unique: true,
+        validate: {
+            validator: function(v) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            },
+            message: 'Invalid email format'
+        }
+    },
     password: { type: String, required: true },
     image: { type: String, required: true },
     speciality: { type: String, required: true },
